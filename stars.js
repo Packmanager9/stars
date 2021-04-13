@@ -896,8 +896,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
             // this.body.draw()
             // var grd = canvas_context.createRadialGradient(75, 50, 5, 90, 60, 100);
             var grd = canvas_context.createLinearGradient(0, 0, this.body.width, 0);
-            grd.addColorStop(.12, "red");
-            grd.addColorStop(.1, "#FFFFFF44");
+            grd.addColorStop(0, "red");
+            grd.addColorStop(1, "#FFFFFF44");
 
             // Fill with gradient
             canvas_context.fillStyle = grd;
