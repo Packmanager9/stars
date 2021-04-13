@@ -262,16 +262,17 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.reflect = reflect
             this.strokeWidth = strokeWidth
             this.strokeColor = strokeColor
+            this.reflected = 0
         }
         draw() {
             canvas_context.lineWidth = this.strokeWidth
-            canvas_context.strokeStyle = this.color
+            // canvas_context.strokeStyle = this.color
             canvas_context.beginPath();
             if (this.radius > 0) {
-                canvas_context.arc(this.x, this.y, this.radius, 0, (Math.PI * 2), true)
-                canvas_context.fillStyle = this.color
+                canvas_context.arc(this.x, this.y, this.radius*10, 0, (Math.PI * 2), true)
+                // canvas_context.fillStyle = this.color
                 canvas_context.fill()
-                canvas_context.stroke();
+                // canvas_context.stroke();
             } else {
                 console.log("The circle is below a radius of 0, and has not been drawn. The circle is:", this)
             }
@@ -281,21 +282,25 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 if (this.x + this.radius > canvas.width) {
                     if (this.xmom > 0) {
                         this.xmom *= -1
+                        this.reflected = 1
                     }
                 }
                 if (this.y + this.radius > canvas.height) {
                     if (this.ymom > 0) {
-                        this.ymom *= -1
+                        this.ymom *= -1 + -Math.random()
+                        this.reflected = 1
                     }
                 }
                 if (this.x - this.radius < 0) {
                     if (this.xmom < 0) {
                         this.xmom *= -1
+                        this.reflected = 1
                     }
                 }
                 if (this.y - this.radius < 0) {
                     if (this.ymom < 0) {
                         this.ymom *= -1
+                        this.reflected = 1
                     }
                 }
             }
@@ -889,30 +894,54 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
     class Star{
         constructor(){
-            this.body = new Rectangle(350,350, 100,100, "White")
+            this.dot = new Circle(Math.random()*canvas.width,0, 1+(Math.random()*7), "transparent", (Math.random()-.5)*3, 3, 1, 1)
+            this.activated = 0
 
         }
         draw(){
-            // this.body.draw()
-            // var grd = canvas_context.createRadialGradient(75, 50, 5, 90, 60, 100);
-            var grd = canvas_context.createLinearGradient(0, 0, this.body.width, 0);
-            grd.addColorStop(0, "red");
-            grd.addColorStop(1, "#FFFFFF44");
-
-            // Fill with gradient
-            canvas_context.fillStyle = grd;
-            canvas_context.fillRect(this.body.x-5, this.body.y, this.body.width, this.body.height);
-            canvas_context.fillRect(this.body.x+5, this.body.y, -this.body.width, this.body.height);
+            var gard = canvas_context.createRadialGradient(this.dot.x, this.dot.y, this.dot.radius, this.dot.x, this.dot.y, this.dot.radius*7);
+            let string = getRandomColor()
+            gard.addColorStop(0,string+"ff")
+            gard.addColorStop(0.01,string+"88")
+            gard.addColorStop(0.11,string+"44")
+            gard.addColorStop(1,string+"01")
+            canvas_context.fillStyle = gard;
+            this.dot.move()
+            this.dot.ymom*=.99
+            this.dot.xmom*=1
+            this.dot.draw()
+            this.dot.ymom+=.1
+            if(this.dot.reflected > 0){
+                this.activated--
+            }
         }
+        clean(){
 
-
+            if(this.activated<-700){
+                stars.splice(stars.indexOf(this),1)
+            }
+        }
     }
+    let stars = []
+
+    let starssky = []
+
 
     let star = new Star()
+    stars.push(star)
     function main() {
         canvas_context.clearRect(0, 0, canvas.width, canvas.height)  // refreshes the image
         gamepadAPI.update() //checks for button presses/stick movement on the connected controller)
+        if(Math.random()<.09){
+            let star = new Star()
+            stars.push(star)
+        }
         // game code goes here
-        star.draw()
+        for(let t = 0;t<stars.length;t++){
+            stars[t].draw()
+        }
+        for(let t = 0;t<stars.length;t++){
+            stars[t].clean()
+        }
     }
 })
